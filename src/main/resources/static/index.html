@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>PassGuard Web</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; background: #f5f5f5; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 10px; margin: 6px 0; border-radius: 6px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 10px; margin-top: 10px; border: none; background: #4CAF50; color: white; font-size: 16px; cursor: pointer; border-radius: 6px; }
+        button:hover { background: #45a049; }
+        .hidden { display: none; }
+        .item { padding: 10px; background: #fff; border-radius: 6px; border: 1px solid #ddd; margin-bottom: 8px; position: relative; }
+        .delete-btn { background:#e53935; margin-top:5px; }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">PassGuard Web</h2>
+
+<!-- Блок входа -->
+<div id="loginBlock" class="card">
+    <h3>Вход</h3>
+    <input id="loginUsername" placeholder="Логин">
+    <input id="loginPassword" placeholder="Пароль" type="password">
+    <button onclick="login()">Войти</button>
+</div>
+
+<!-- Блок регистрации -->
+<div id="registerBlock" class="card">
+    <h3>Регистрация</h3>
+    <input id="regUsername" placeholder="Логин">
+    <input id="regName" placeholder="Имя">
+    <input id="regPassword" placeholder="Пароль" type="password">
+    <button onclick="register()">Зарегистрироваться</button>
+</div>
+
+<!-- Кабинет пользователя -->
+<div id="userPanel" class="card hidden">
+    <h3>Личный кабинет</h3>
+
+    <button onclick="logout()" style="background:#e53935;">Выйти</button>
+
+    <h4 style="margin-top:20px;">Добавить пароль</h4>
+    <input id="serviceName" placeholder="Сервис">
+    <input id="website" placeholder="Сайт">
+    <input id="username" placeholder="Логин">
+    <input id="password" placeholder="Пароль">
+    <button onclick="addPass()">Добавить</button>
+
+    <h4 style="margin-top:20px;">Ваши пароли</h4>
+    <button onclick="loadPasswords()" style="background:#2196F3;">Обновить список</button>
+
+    <div id="passwordList"></div>
+</div>
+
+<script>
+    const API = "http://localhost:8080/api";
+
+    function showLoginScreen() {
+        document.getElementById("loginBlock").classList.remove("hidden");
+        document.getElementById("registerBlock").classList.remove("hidden");
+        document.getElementById("userPanel").classList.add("hidden");
+    }
+
+    function showUserPanel() {
+        document.getElementById("loginBlock").classList.add("hidden");
+        document.getElementById("registerBlock").classList.add("hidden");
+        document.getElementById("userPanel").classList.remove("hidden");
+    }
+
+    async function register() {
+        const body = {
+            username: document.getElementById("regUsername").value,
+            name: document.getElementById("regName").value,
+            password: document.getElementById("regPassword").value
+        };
+
+        const res = await fetch(`${API}/auth/register`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+
+        alert("Регистрация завершена");
+    }
+
+    async function login() {
+        const body = {
+            username: document.getElementById("loginUsername").value,
+            password: document.getElementById("loginPassword").value
+        };
+
+        const res = await fetch(`${API}/auth/login`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+            alert("Неверный логин или пароль");
+            return;
+        }
+
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+
+        showUserPanel();
+        loadPasswords();
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        showLoginScreen();
+    }
+
+    async function addPass() {
+        const token = localStorage.getItem("token");
+
+        const body = {
+            serviceName: document.getElementById("serviceName").value,
+            website: document.getElementById("website").value,
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value
+        };
+
+        await fetch(`${API}/pass/add-pass`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            body: JSON.stringify(body)
+        });
+
+        alert("Добавлено!");
+        loadPasswords();
+    }
+
+    async function loadPasswords() {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API}/pass/all-pass`, {
+            method: "GET",
+            headers: {"Authorization": "Bearer " + token}
+        });
+
+        const list = await res.json();
+        const container = document.getElementById("passwordList");
+        container.innerHTML = "";
+
+        list.forEach(p => {
+            const el = document.createElement("div");
+            el.className = "item";
+            el.innerHTML = `
+                <b>${p.serviceName}</b><br>
+                ${p.website}<br>
+                Логин: ${p.username}<br>
+                Пароль: ${p.password}<br>
+            `;
+
+            // Кнопка удаления
+            const delBtn = document.createElement("button");
+            delBtn.className = "delete-btn";
+            delBtn.innerText = "Удалить";
+            delBtn.onclick = () => deletePassword(p.id);
+            el.appendChild(delBtn);
+
+            container.appendChild(el);
+        });
+    }
+
+    async function deletePassword(passwordId) {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(`${API}/pass/delete-pass/${passwordId}`, {
+            method: "DELETE",
+            headers: {"Authorization": "Bearer " + token}
+        });
+
+        if (res.ok) {
+            alert("Пароль удалён");
+            loadPasswords();
+        } else {
+            alert("Не удалось удалить пароль");
+        }
+    }
+
+    showLoginScreen();
+</script>
+
+</body>
+</html>

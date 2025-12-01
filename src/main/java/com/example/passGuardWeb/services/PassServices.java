@@ -60,4 +60,41 @@ public class PassServices {
         }
         return false;
     }
+
+//    public Password updatePassword(PasswordDto passwordDto)  {//, Long userId, Long passwordId) {
+//        Password password = new Password();
+//        password.setServiceName(passwordDto.getServiceName());
+//        password.setWebsite(passwordDto.getWebsite());
+//        password.setUsername(passwordDto.getUsername());
+//
+//        String encrypted = aes.encrypt(passwordDto.getPassword());
+//        password.setPassword(encrypted);
+//
+//        return passRepository.save(password);
+//    }
+
+    public Password updatePassword(Long userId, Long passwordId, PasswordDto dto) {
+
+        // 1. Находим пароль, который принадлежит именно ЭТОМУ пользователю
+        Password password = passRepository
+                .findByIdAndUserId(passwordId, userId)
+                .orElseThrow(() -> new RuntimeException("Password not found or access denied"));
+
+        // 2. Обновляем данные
+        password.setServiceName(dto.getServiceName());
+        password.setWebsite(dto.getWebsite());
+        password.setUsername(dto.getUsername());
+
+        // 3. Шифруем, только если передан новый пароль
+//        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+//            String encrypted = aes.encrypt(dto.getPassword());
+//            existing.setPassword(encrypted);
+//        }
+        String encrypted = aes.encrypt(dto.getPassword());
+        password.setPassword(encrypted);
+
+        // 4. Сохраняем обновлённый объект
+        return passRepository.save(password);
+    }
+
 }

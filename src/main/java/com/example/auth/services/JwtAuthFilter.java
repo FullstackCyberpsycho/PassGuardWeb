@@ -1,7 +1,7 @@
 package com.example.auth.services;
 
 import com.example.auth.models.User;
-import com.example.auth.repository.UserRepository;
+import com.example.passGuardWeb.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

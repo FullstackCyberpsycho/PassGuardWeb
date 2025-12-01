@@ -1,7 +1,7 @@
 package com.example.passGuardWeb.controllers;
 
 import com.example.auth.models.User;
-import com.example.auth.repository.UserRepository;
+import com.example.passGuardWeb.repository.UserRepository;
 import com.example.auth.services.JwtService;
 import com.example.passGuardWeb.dto.PasswordDto;
 import com.example.passGuardWeb.models.Password;
@@ -63,4 +63,15 @@ public class PassController {
         }
     }
 
+    @PutMapping("/update-pass/{passwordId}")
+    public ResponseEntity<Password> updatePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable Long passwordId,
+            @RequestBody @Valid PasswordDto passwordDto) {
+
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserId(token);
+
+        return ResponseEntity.ok(passServices.updatePassword(userId, passwordId, passwordDto));
+    }
 }

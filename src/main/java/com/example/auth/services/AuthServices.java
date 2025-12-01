@@ -13,17 +13,10 @@ public class AuthServices {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
 
-//    @Autowired
-//    public AuthServices(AuthRepository authRepository, PasswordEncoder passwordEncoder) {
-//        this.authRepository = authRepository;
-//        this.passwordEncoder = passwordEncoder;
-//    }
-
     public User register(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return authRepository.save(user);
     }
-
 
     public User login(String username, String password) {
         User user = authRepository.findByUsername(username);
@@ -38,6 +31,5 @@ public class AuthServices {
         System.out.println("Не верный пароль от " + username);
         return null;
     }
-
 
 }

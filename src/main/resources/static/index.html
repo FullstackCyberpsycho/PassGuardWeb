@@ -149,23 +149,19 @@
 
 
     async function loadUserInfo() {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+    const token = localStorage.getItem("token");
 
-        const res = await fetch(`${API}/user/info`, {
-            method: "GET",
-            headers: { "Authorization": "Bearer " + token }
-        });
+    const res = await fetch(`${API}/user/info`, {
+        headers: { "Authorization": "Bearer " + token }
+    });
 
-        if (!res.ok) return;
+    const data = await res.json();
 
-        const data = await res.json();
+    menuName.textContent = data.name;
+    menuUsername.textContent = data.username;
+    userIcon.textContent = data.avatar; // ← идеально
+}
 
-        menuName.textContent = data.name;
-        menuUsername.textContent = data.username;
-
-        userIcon.textContent = data.name.charAt(0).toUpperCase();
-    }
 
 
     async function register() {

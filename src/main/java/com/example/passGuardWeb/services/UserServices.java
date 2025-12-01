@@ -15,6 +15,6 @@ public class UserServices {
         User user = userRepository.findById(userid)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-       return new UserInfoDto(user.getName(), user.getUsername());
+       return new UserInfoDto(user.getName(), user.getUsername(), user.getUsername().substring(0, 1).toUpperCase());
     }
 }

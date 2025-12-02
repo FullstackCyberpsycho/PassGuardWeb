@@ -58,6 +58,16 @@
     <div id="passwordList"></div>
 </div>
 
+<div id="editPanel" class="card hidden">
+    <h3>Редактировать пароль</h3>
+    <input id="editServiceName" placeholder="Сервис">
+    <input id="editWebsite" placeholder="Сайт">
+    <input id="editUsername" placeholder="Логин">
+    <input id="editPassword" placeholder="Пароль">
+    <button onclick="updatePassword()">Сохранить</button>
+    <button onclick="cancelEdit()" style="background:#9e9e9e">Отмена</button>
+</div>
+
 <div id="editUserPanel" class="card hidden">
     <h3>Редактировать профиль</h3>
     <input id="editUserName" placeholder="Имя">
@@ -68,149 +78,30 @@
 
 <script>
     const API="http://localhost:8080/api";
-    const menuName=document.getElementById("menuName");
-    const menuUsername=document.getElementById("menuUsername");
-    const userIconEl=document.getElementById("userIcon");
-    const userMenu=document.getElementById("userMenu");
-    const editUserPanel=document.getElementById("editUserPanel");
-    const editUserName=document.getElementById("editUserName");
-    const editUserUsername=document.getElementById("editUserUsername");
-
+    const menuName=document.getElementById("menuName"), menuUsername=document.getElementById("menuUsername"), userIconEl=document.getElementById("userIcon"), userMenu=document.getElementById("userMenu"), editUserPanel=document.getElementById("editUserPanel"), editUserName=document.getElementById("editUserName"), editUserUsername=document.getElementById("editUserUsername"), loginBlock=document.getElementById("loginBlock"), registerBlock=document.getElementById("registerBlock"), userPanel=document.getElementById("userPanel"), loginUsername=document.getElementById("loginUsername"), loginPassword=document.getElementById("loginPassword"), regUsername=document.getElementById("regUsername"), regName=document.getElementById("regName"), regPassword=document.getElementById("regPassword"), passwordList=document.getElementById("passwordList"), editPanel=document.getElementById("editPanel"), editServiceName=document.getElementById("editServiceName"), editWebsite=document.getElementById("editWebsite"), editUsername=document.getElementById("editUsername"), editPassword=document.getElementById("editPassword");
     let editingId=null;
 
-    function showLoginScreen(){
-        loginBlock.classList.remove("hidden");
-        registerBlock.classList.remove("hidden");
-        userPanel.classList.add("hidden");
-        editUserPanel.classList.add("hidden");
-        userIconEl.classList.add("hidden");
-        userMenu.style.display="none";
-    }
-    function showUserPanel(){
-        loginBlock.classList.add("hidden");
-        registerBlock.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-        editUserPanel.classList.add("hidden");
-        userIconEl.classList.remove("hidden");
-    }
-    function toggleMenu(){userMenu.style.display=userMenu.style.display==="block"?"none":"block"}
-    userIconEl.addEventListener("click",toggleMenu);
+    function showLoginScreen(){loginBlock.classList.remove("hidden"); registerBlock.classList.remove("hidden"); userPanel.classList.add("hidden"); editUserPanel.classList.add("hidden"); userIconEl.classList.add("hidden"); userMenu.style.display="none";}
+    function showUserPanel(){loginBlock.classList.add("hidden"); registerBlock.classList.add("hidden"); userPanel.classList.remove("hidden"); editUserPanel.classList.add("hidden"); userIconEl.classList.remove("hidden");}
+    function toggleMenu(){userMenu.style.display = userMenu.style.display==="block"?"none":"block";}
+    userIconEl.addEventListener("click", toggleMenu);
 
-    function openEditUser(){
-        editUserPanel.classList.remove("hidden");
-        userPanel.classList.add("hidden");
-        userMenu.style.display="none";
-        editUserName.value=menuName.textContent;
-        editUserUsername.value=menuUsername.textContent;
-    }
-    function cancelUserEdit(){
-        editUserPanel.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-    }
+    function openEditUser(){editUserPanel.classList.remove("hidden"); userPanel.classList.add("hidden"); userMenu.style.display="none"; editUserName.value = menuName.textContent; editUserUsername.value = menuUsername.textContent;}
+    function cancelUserEdit(){editUserPanel.classList.add("hidden"); userPanel.classList.remove("hidden");}
 
-    async function loadUserInfo(){
-        const token=localStorage.getItem("token");
-        if(!token) return;
-        const res=await fetch(`${API}/user/info`,{
-            headers:{"Authorization":"Bearer "+token}
-        });
-        if(!res.ok) return;
-        const data=await res.json();
-        menuName.textContent=data.name;
-        menuUsername.textContent=data.username;
-        userIconEl.textContent=data.avatar||(data.name?data.name.charAt(0).toUpperCase():"U");
+    async function login(){try{const res=await fetch(`${API}/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:loginUsername.value,password:loginPassword.value})}); if(!res.ok){alert("Неверный логин или пароль");return} const data=await res.json(); localStorage.setItem("token",data.token); await loadUserInfo(); showUserPanel(); loadPasswords();}catch(e){console.error(e);alert("Ошибка входа");}}
+    async function register(){try{const res=await fetch(`${API}/auth/register`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:regUsername.value,name:regName.value,password:regPassword.value})}); if(res.ok){alert("Регистрация завершена"); await login();} else alert("Ошибка регистрации");}catch(e){console.error(e);alert("Ошибка регистрации");}}
+    async function loadUserInfo(){const token=localStorage.getItem("token"); if(!token) return; try{const res=await fetch(`${API}/user/info`,{headers:{"Authorization":"Bearer "+token}}); if(!res.ok) return; const data=await res.json(); menuName.textContent=data.name; menuUsername.textContent=data.username; userIconEl.textContent=data.avatar||(data.name?data.name.charAt(0).toUpperCase():"U");}catch(e){console.error(e);}}
+    async function updateUserInfo(){const token=localStorage.getItem("token"); if(!token) return alert("Нет токена!"); if(editUserName.value.length<2||editUserUsername.value.length<5) return alert("Имя минимум 2 символа, логин минимум 5 символов"); try{const res=await fetch(`${API}/user/update`,{method:"PUT",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({name:editUserName.value,username:editUserUsername.value,avatar:editUserName.value.charAt(0).toUpperCase()})}); if(!res.ok){const err=await res.text(); alert("Ошибка обновления: "+err);return} const data=await res.json(); menuName.textContent=data.name; menuUsername.textContent=data.username; userIconEl.textContent=data.avatar; editUserPanel.classList.add("hidden"); userPanel.classList.remove("hidden"); alert("Профиль обновлён!");}catch(e){console.error(e);alert("Ошибка обновления профиля");}
     }
+    function logout(){localStorage.removeItem("token"); showLoginScreen();}
 
-    async function updateUserInfo(){
-        const token=localStorage.getItem("token");
-        if(!token) return alert("Нет токена!");
-        if(editUserName.value.length<2||editUserUsername.value.length<5){
-            return alert("Имя минимум 2 символа, логин минимум 5 символов");
-        }
-        const body={name:editUserName.value,username:editUserUsername.value,avatar:editUserName.value.charAt(0).toUpperCase()};
-        const res=await fetch(`${API}/user/update`,{
-            method:"PUT",
-            headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
-            body:JSON.stringify(body)
-        });
-        if(!res.ok){const err=await res.text();console.error(err);return alert("Ошибка обновления: "+err);}
-        const data=await res.json();
-        menuName.textContent=data.name;
-        menuUsername.textContent=data.username;
-        userIconEl.textContent=data.avatar;
-        editUserPanel.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-        alert("Профиль обновлён!");
-    }
-
-    async function register(){
-        const body={username:regUsername.value,name:regName.value,password:regPassword.value};
-        const res=await fetch(`${API}/auth/register`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-        if(res.ok){alert("Регистрация завершена"); await login();}
-        else alert("Ошибка регистрации");
-    }
-
-    async function login(){
-        const body={username:loginUsername.value,password:loginPassword.value};
-        const res=await fetch(`${API}/auth/login`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-        if(!res.ok){alert("Неверный логин или пароль");return;}
-        const data=await res.json();
-        localStorage.setItem("token",data.token);
-        await loadUserInfo();
-        showUserPanel();
-        loadPasswords();
-    }
-
-    function logout(){localStorage.removeItem("token");showLoginScreen();}
-
-    async function addPass(){
-        const token=localStorage.getItem("token");
-        const body={serviceName:serviceName.value,website:website.value,username:username.value,password:password.value};
-        await fetch(`${API}/pass/add-pass`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body)});
-        loadPasswords();
-    }
-
-    async function loadPasswords(){
-        const token=localStorage.getItem("token");
-        const res=await fetch(`${API}/pass/all-pass`,{method:"GET",headers:{"Authorization":"Bearer "+token}});
-        const list=await res.json();
-        passwordList.innerHTML="";
-        list.forEach(p=>{
-            const el=document.createElement("div");
-            el.className="item";
-            el.innerHTML=`<b>${p.serviceName}</b><br>${p.website}<br>Логин: ${p.username}<br>Пароль: ${p.password}<br>`;
-            const editBtn=document.createElement("button");
-            editBtn.className="edit-btn"; editBtn.innerText="Изменить"; editBtn.onclick=()=>startEdit(p); el.appendChild(editBtn);
-            const delBtn=document.createElement("button");
-            delBtn.className="delete-btn"; delBtn.innerText="Удалить"; delBtn.onclick=()=>deletePassword(p.id); el.appendChild(delBtn);
-            passwordList.appendChild(el);
-        });
-    }
-
-    function startEdit(p){
-        editingId=p.id;
-        editServiceName.value=p.serviceName;
-        editWebsite.value=p.website;
-        editUsername.value=p.username;
-        editPassword.value=p.password;
-        editPanel.classList.remove("hidden");
-        userPanel.classList.add("hidden");
-    }
-
-    async function updatePassword(){
-        const token=localStorage.getItem("token");
-        const body={serviceName:editServiceName.value,website:editWebsite.value,username:editUsername.value,password:editPassword.value};
-        await fetch(`${API}/pass/update-pass/${editingId}`,{method:"PUT",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(body)});
-        editPanel.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-        loadPasswords();
-    }
-
-    async function deletePassword(id){
-        const token=localStorage.getItem("token");
-        await fetch(`${API}/pass/delete-pass/${id}`,{method:"DELETE",headers:{"Authorization":"Bearer "+token}});
-        loadPasswords();
-    }
+    async function loadPasswords(){const token=localStorage.getItem("token"); if(!token) return; const res=await fetch(`${API}/pass/all-pass`,{headers:{"Authorization":"Bearer "+token}}); if(!res.ok) return; const list=await res.json(); passwordList.innerHTML=""; list.forEach(p=>{const el=document.createElement("div"); el.className="item"; el.innerHTML=`<b>${p.serviceName}</b><br>${p.website}<br>Логин: ${p.username}<br>Пароль: ${p.password}<br>`; const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.innerText="Изменить"; editBtn.onclick=()=>startEdit(p); el.appendChild(editBtn); const delBtn=document.createElement("button"); delBtn.className="delete-btn"; delBtn.innerText="Удалить"; delBtn.onclick=()=>deletePassword(p.id); el.appendChild(delBtn); passwordList.appendChild(el);});}
+    async function addPass(){const token=localStorage.getItem("token"); if(!token) return; await fetch(`${API}/pass/add-pass`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({serviceName:document.getElementById("serviceName").value,website:document.getElementById("website").value,username:document.getElementById("username").value,password:document.getElementById("password").value})}); loadPasswords();}
+    function startEdit(p){editingId=p.id; editServiceName.value=p.serviceName; editWebsite.value=p.website; editUsername.value=p.username; editPassword.value=p.password; editPanel.classList.remove("hidden"); userPanel.classList.add("hidden");}
+    function cancelEdit(){editPanel.classList.add("hidden"); userPanel.classList.remove("hidden");}
+    async function updatePassword(){const token=localStorage.getItem("token"); if(!token) return; await fetch(`${API}/pass/update-pass/${editingId}`,{method:"PUT",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({serviceName:editServiceName.value,website:editWebsite.value,username:editUsername.value,password:editPassword.value})}); cancelEdit(); loadPasswords();}
+    async function deletePassword(id){const token=localStorage.getItem("token"); if(!token) return; await fetch(`${API}/pass/delete-pass/${id}`,{method:"DELETE",headers:{"Authorization":"Bearer "+token}}); loadPasswords();}
 
     showLoginScreen();
 </script>

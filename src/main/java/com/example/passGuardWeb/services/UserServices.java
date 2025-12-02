@@ -11,10 +11,20 @@ import org.springframework.stereotype.Service;
 public class UserServices {
     private final UserRepository userRepository;
 
-    public UserInfoDto getNameAndUsername(Long userid) {
-        User user = userRepository.findById(userid)
+    public UserInfoDto getNameAndUsername(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
        return new UserInfoDto(user.getName(), user.getUsername(), user.getUsername().substring(0, 1).toUpperCase());
+    }
+
+    public UserInfoDto updateUser(Long userId, UserInfoDto userInfoDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setName(userInfoDto.getName());
+        user.setUsername(userInfoDto.getUsername());
+        userRepository.save(user);
+
+        return new UserInfoDto(user.getName(), user.getUsername(), user.getUsername().substring(0, 1).toUpperCase());
     }
 }

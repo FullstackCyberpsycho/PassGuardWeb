@@ -27,37 +27,6 @@ public class AuthController {
     private final AuthServices authServices;
     private final AuthRepository authRepository;
 
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        User user = new User();
-
-        user.setUsername(request.getUsername());
-        user.setName(request.getName());
-        user.setPassword(request.getPassword());
-        authServices.register(user);
-        log.info("Новый пользователь зарегистрирован: {}", user.getUsername());
-        return ResponseEntity.ok("зарегистрирован");
-    }*/
-
-//    @PostMapping("/register")
-//    public ResponseEntity<?> register(
-//            @RequestHeader(value = "Authorization", required = false) String authHeader,
-//                        @RequestBody RegisterRequest registerRequest) {
-//
-//        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body("Вы уже авторизованы — регистрация второго аккаунта запрещена");
-//        }
-//
-//        try {
-//            User user = authServices.register(registerRequest);
-//
-//            return ResponseEntity.ok("Регистрация успешна");
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-//        }
-//    }
-
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
@@ -71,115 +40,12 @@ public class AuthController {
         }
 
         try {
-            authServices.register(dto); // теперь работает с DTO
+            authServices.register(dto);
             return ResponseEntity.ok("Регистрация успешна");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(
-            @RequestHeader(value = "Authorization", required = false) String authHeader,
-            @RequestBody RegisterRequest request) {
-
-        // 1. Запрещаем регистрацию, если пользователь уже авторизован
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Вы уже авторизованы. Создание второго аккаунта запрещено.");
-        }
-
-        try {
-            authServices.register(request);
-            return ResponseEntity.ok("Пользователь зарегистрирован");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }*/
-
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-
-        // Проверяем, есть ли уже хотя бы один пользователь
-        if (authRepository.count() > 0) {
-            System.out.println("Регистрация недоступна: аккаунт уже существует.");
-            return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
-                    .body("Регистрация недоступна: аккаунт уже существует.");
-        }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setName(request.getName());
-        user.setPassword(request.getPassword());
-
-        authServices.register(user);
-        log.info("Новый пользователь зарегистрирован: {}", user.getUsername());
-
-        return ResponseEntity.ok("Пользователь зарегистрирован");
-    }*/
-
-
-//    @PostMapping("/register")
-//    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-//
-//        if (!authRepository.findAll().isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body("Регистрация недоступна: аккаунт уже существует.");
-//        }
-//
-//        User user = new User();
-//        user.setUsername(request.getUsername());
-//        user.setName(request.getName());
-//        user.setPassword(request.getPassword());
-//
-//        authServices.register(user);
-//
-//        return ResponseEntity.ok("Пользователь зарегистрирован");
-//    }
-
-
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-
-        // Проверяем, существует ли пользователь с таким именем
-        if (authRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Пользователь с таким логином уже существует");
-        }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setName(request.getName());
-        user.setPassword(request.getPassword());
-
-        authServices.register(user);
-
-        return ResponseEntity.ok("Пользователь зарегистрирован");
-    }*/
-
-    /*@PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-
-        if (authRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Пользователь с таким логином уже существует");
-        }
-
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setName(request.getName());
-        user.setPassword(request.getPassword());
-
-        authServices.register(user);
-
-        return ResponseEntity.ok("зарегистрирован");
-    }*/
-
-
-
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {

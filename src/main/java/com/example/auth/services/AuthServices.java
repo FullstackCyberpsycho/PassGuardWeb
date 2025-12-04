@@ -4,7 +4,6 @@ import com.example.auth.dto.RegisterRequest;
 import com.example.auth.models.User;
 import com.example.auth.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

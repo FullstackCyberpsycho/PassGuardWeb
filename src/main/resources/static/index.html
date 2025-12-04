@@ -27,6 +27,7 @@
     <p><b>Имя:</b> <span id="menuName"></span></p>
     <p><b>Логин:</b> <span id="menuUsername"></span></p>
     <button onclick="openEditUser()" style="background:#2196F3">Изменить профиль</button>
+    <button onclick="deleteAccount()" style="background:#9c27b0">Удалить аккаунт</button>
     <button onclick="logout()" style="background:#e53935">Выйти</button>
 </div>
 
@@ -95,6 +96,35 @@
     async function updateUserInfo(){const token=localStorage.getItem("token"); if(!token) return alert("Нет токена!"); if(editUserName.value.length<2||editUserUsername.value.length<5) return alert("Имя минимум 2 символа, логин минимум 5 символов"); try{const res=await fetch(`${API}/user/update`,{method:"PUT",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({name:editUserName.value,username:editUserUsername.value,avatar:editUserName.value.charAt(0).toUpperCase()})}); if(!res.ok){const err=await res.text(); alert("Ошибка обновления: "+err);return} const data=await res.json(); menuName.textContent=data.name; menuUsername.textContent=data.username; userIconEl.textContent=data.avatar; editUserPanel.classList.add("hidden"); userPanel.classList.remove("hidden"); alert("Профиль обновлён!");}catch(e){console.error(e);alert("Ошибка обновления профиля");}
     }
     function logout(){localStorage.removeItem("token"); showLoginScreen();}
+
+    async function deleteAccount() {
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Вы не авторизованы");
+
+    if (!confirm("Точно удалить аккаунт? Это действие необратимо!")) return;
+
+    try {
+        const res = await fetch(`${API}/user/delete`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        if (!res.ok) {
+            const err = await res.text();
+            alert("Ошибка удаления: " + err);
+            return;
+        }
+
+        alert("Аккаунт удалён");
+        logout(); // очистка токена и возврат к экрану логина
+    } catch (e) {
+        console.error(e);
+        alert("Ошибка при удалении аккаунта");
+    }
+}
+
 
     async function loadPasswords(){const token=localStorage.getItem("token"); if(!token) return; const res=await fetch(`${API}/pass/all-pass`,{headers:{"Authorization":"Bearer "+token}}); if(!res.ok) return; const list=await res.json(); passwordList.innerHTML=""; list.forEach(p=>{const el=document.createElement("div"); el.className="item"; el.innerHTML=`<b>${p.serviceName}</b><br>${p.website}<br>Логин: ${p.username}<br>Пароль: ${p.password}<br>`; const editBtn=document.createElement("button"); editBtn.className="edit-btn"; editBtn.innerText="Изменить"; editBtn.onclick=()=>startEdit(p); el.appendChild(editBtn); const delBtn=document.createElement("button"); delBtn.className="delete-btn"; delBtn.innerText="Удалить"; delBtn.onclick=()=>deletePassword(p.id); el.appendChild(delBtn); passwordList.appendChild(el);});}
     async function addPass(){const token=localStorage.getItem("token"); if(!token) return; await fetch(`${API}/pass/add-pass`,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({serviceName:document.getElementById("serviceName").value,website:document.getElementById("website").value,username:document.getElementById("username").value,password:document.getElementById("password").value})}); loadPasswords();}

@@ -18,7 +18,7 @@ public class UserServices {
        return new UserInfoDto(user.getName(), user.getUsername(), user.getName().substring(0, 1).toUpperCase());
     }
 
-    public UserInfoDto updateUser(Long userId, UserInfoDto userInfoDto) {
+    public UserInfoDto update(Long userId, UserInfoDto userInfoDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         user.setName(userInfoDto.getName());
@@ -26,5 +26,9 @@ public class UserServices {
         userRepository.save(user);
 
         return new UserInfoDto(user.getName(), user.getUsername(), user.getName().substring(0, 1).toUpperCase());
+    }
+
+    public void deleteById(Long userID) {
+        userRepository.deleteById(userID);
     }
 }

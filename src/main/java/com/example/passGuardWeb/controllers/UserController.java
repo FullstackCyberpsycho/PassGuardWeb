@@ -27,11 +27,20 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<UserInfoDto> update(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<UserInfoDto> getUpdate(@RequestHeader("Authorization") String authHeader,
                                        @RequestBody @Valid UserInfoDto user) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtService.extractUserId(token);
 
-        return ResponseEntity.status(HttpStatus.OK).body(userServices.updateUser(userId, user));
+        return ResponseEntity.status(HttpStatus.OK).body(userServices.update(userId, user));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> getDelete(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserId(token);
+
+        userServices.deleteById(userId);
+        return ResponseEntity.status(HttpStatus.OK).body("Пользователь удален");
     }
 }

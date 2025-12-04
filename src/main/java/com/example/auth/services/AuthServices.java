@@ -1,5 +1,6 @@
 package com.example.auth.services;
 
+import com.example.auth.dto.RegisterRequest;
 import com.example.auth.models.User;
 import com.example.auth.repository.AuthRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,16 @@ public class AuthServices {
     private final AuthRepository authRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User register(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User register(RegisterRequest registerRequest) {
+        if (authRepository.existsByUsername(registerRequest.getUsername())) {
+            throw new RuntimeException("Пользователь с таким username уже существует");
+        }
+
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setName(registerRequest.getName());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+
         return authRepository.save(user);
     }
 
@@ -28,7 +37,7 @@ public class AuthServices {
             return user;
         }
 
-        System.out.println("Не верный пароль от " + username);
+        //System.out.println("Не верный пароль от " + username);
         return null;
     }
 

@@ -1,5 +1,6 @@
 package com.example.passGuardWeb.repository;
 
+import com.example.passGuardWeb.dto.PasswordDto;
 import com.example.passGuardWeb.models.Password;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,5 @@ public interface PassRepository extends JpaRepository<Password, Long> {
 
     Optional<Password> findByIdAndUserId(Long passwordId, Long userId);
 
+    List<PasswordDto> findByUserIdAndServiceNameStartingWithIgnoreCase(Long userId, String serviceName);
 }

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+//import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -64,8 +65,7 @@ public class PassController {
     }
 
     @PutMapping("/update-pass/{passwordId}")
-    public ResponseEntity<Password> updatePassword(
-            @RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<Password> updatePassword(@RequestHeader("Authorization") String authHeader,
             @PathVariable Long passwordId,
             @RequestBody @Valid PasswordDto passwordDto) {
 
@@ -73,5 +73,15 @@ public class PassController {
         Long userId = jwtService.extractUserId(token);
 
         return ResponseEntity.ok(passServices.updatePassword(userId, passwordId, passwordDto));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PasswordDto>> getSearchPassword(@RequestHeader("Authorization") String authHeader,
+            @RequestParam String serviceName) {
+
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.extractUserId(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(passServices.getSearchPassword(userId, serviceName));
     }
 }

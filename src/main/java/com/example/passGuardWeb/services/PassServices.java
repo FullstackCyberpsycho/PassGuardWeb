@@ -6,10 +6,12 @@ import com.example.passGuardWeb.dto.PasswordDto;
 import com.example.passGuardWeb.models.Password;
 import com.example.passGuardWeb.repository.PassRepository;
 import lombok.RequiredArgsConstructor;
+//import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+//import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,7 +65,7 @@ public class PassServices {
 
     public Password updatePassword(Long userId, Long passwordId, PasswordDto dto) {
 
-        // 1. Находим пароль, который принадлежит именно ЭТОМУ пользователю
+        // Находим пароль, который принадлежит именно ЭТОМУ пользователю
         Password password = passRepository
                 .findByIdAndUserId(passwordId, userId)
                 .orElseThrow(() -> new RuntimeException("Password not found or access denied"));
@@ -78,4 +80,14 @@ public class PassServices {
         return passRepository.save(password);
     }
 
+    public List<PasswordDto> getSearchPassword(Long userId, String serviceName) {
+        return passRepository.findByUserIdAndServiceNameStartingWithIgnoreCase(userId, serviceName.trim()).stream()
+                .map(p -> new PasswordDto(
+                        p.getId(),
+                        p.getServiceName(),
+                        p.getWebsite(),
+                        p.getUsername(),
+                        p.getPassword()
+                )).toList();
+    }
 }

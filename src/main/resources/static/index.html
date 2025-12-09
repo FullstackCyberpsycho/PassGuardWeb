@@ -3,322 +3,407 @@
 <head>
     <meta charset="UTF-8">
     <title>PassGuard Web</title>
+
     <style>
-        body{font-family:Arial,sans-serif;max-width:600px;margin:40px auto;background:#f5f5f5}
-        .card{background:#fff;padding:20px;border-radius:10px;margin-top:20px;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
-        input,button{width:100%;padding:10px;margin:6px 0;border-radius:6px;border:1px solid #ccc;box-sizing:border-box}
-        button{border:none;color:#fff;font-size:16px;cursor:pointer;background:#4CAF50}
-        button:hover{background:#45a049}
-        .hidden{display:none}
-        .user-icon{width:40px;height:40px;background:#4CAF50;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;float:right;margin-top:-10px}
-        .user-menu{position:absolute;right:20px;top:80px;width:200px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.15);padding:15px;display:none}
-        .user-menu p{margin:5px 0;font-size:14px}
-        .user-menu button{width:100%;margin-top:10px}
-        .item{padding:10px;background:#fff;border-radius:6px;border:1px solid #ddd;margin-bottom:8px}
-        .edit-btn{background:#2196F3;margin-top:5px}
-        .delete-btn{background:#e53935}
+        body {
+            margin: 0;
+            font-family: Inter, sans-serif;
+            background: #f2f4f5;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 230px;
+            background: #ffffff;
+            border-right: 1px solid #dfe3e6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #1f2937;
+            color: white;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px auto;
+        }
+        .username {
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .sidebar button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #1f2937;
+            color: white;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .sidebar button:hover { background: #111827; }
+        .danger { background: #d32f2f !important; }
+        .secondary { background: #6b7280 !important; }
+
+        /* ===== MAIN ===== */
+        .main {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+        }
+
+        /* верхняя панель */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        .profile-btn {
+            padding: 8px 14px;
+            background: #1f2937;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        .profile-btn:hover { background: #111827; }
+
+        input, button {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+        }
+        button { cursor: pointer; }
+
+        .item {
+            padding: 12px 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .item-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        /* MODALS */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 22px;
+            width: 340px;
+            border-radius: 12px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* AUTH */
+        .auth-wrapper {
+            margin: auto;
+            width: 340px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
+
 <body>
-<h2 style="text-align:center;">PassGuard Web</h2>
 
-<div id="userIcon" class="user-icon hidden">U</div>
-<div id="userMenu" class="user-menu">
-    <p><b>Имя:</b> <span id="menuName"></span></p>
-    <p><b>Логин:</b> <span id="menuUsername"></span></p>
-    <button onclick="openEditUser()" style="background:#2196F3">Изменить профиль</button>
-    <button onclick="deleteAccount()" style="background:#9c27b0">Удалить аккаунт</button>
-    <button onclick="logout()" style="background:#e53935">Выйти</button>
-</div>
+<!-- AUTH -->
+<div id="authScreen" class="auth-wrapper">
+    <h2 style="text-align:center;margin-bottom:20px;">PassGuard Web</h2>
 
-<div id="loginBlock" class="card">
     <h3>Вход</h3>
-    <input id="loginUsername" placeholder="Логин">
-    <input id="loginPassword" placeholder="Пароль" type="password">
+    <input id="loginUsername" placeholder="Логин"><br><br>
+    <input id="loginPassword" type="password" placeholder="Пароль"><br>
     <button onclick="login()">Войти</button>
-</div>
 
-<div id="registerBlock" class="card">
+    <hr style="margin:20px 0;">
+
     <h3>Регистрация</h3>
-    <input id="regUsername" placeholder="Логин">
-    <input id="regName" placeholder="Имя">
-    <input id="regPassword" placeholder="Пароль" type="password">
-    <button onclick="register()">Зарегистрироваться</button>
+    <input id="regUsername" placeholder="Логин"><br><br>
+    <input id="regName" placeholder="Имя"><br><br>
+    <input id="regPassword" type="password" placeholder="Пароль"><br>
+    <button onclick="register()">Создать аккаунт</button>
 </div>
 
-<div id="userPanel" class="card hidden">
-    <h3>Личный кабинет</h3>
-    <h4>Добавить пароль</h4>
-    <input id="serviceName" placeholder="Сервис">
-    <input id="website" placeholder="Сайт">
-    <input id="username" placeholder="Логин">
-    <input id="password" placeholder="Пароль">
-    <button onclick="addPass()">Добавить</button>
-    <h4>Ваши пароли</h4>
-    <button onclick="loadPasswords()" style="background:#2196F3">Обновить список</button>
-    <h4>Поиск по сервису</h4>
-    <input id="searchInput" placeholder="Введите название сервиса">
-    <button onclick="searchPasswords()" style="background:#673ab7">Поиск</button>
 
-    <div id="passwordList"></div>
+<!-- APP -->
+<div id="app" class="hidden" style="display:flex; width:100%;">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div id="avatar" class="avatar">U</div>
+        <div id="userNameTitle" class="username">User</div>
+
+        <button onclick="logout()" class="secondary">Выйти</button>
+        <button onclick="deleteAccount()" class="danger">Удалить аккаунт</button>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="top-bar">
+            <button class="profile-btn" onclick="openUserEdit()">Профиль</button>
+        </div>
+
+        <h2>Ваши пароли</h2>
+
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <input id="searchInput" placeholder="Поиск по сервису" style="flex:1;">
+            <button onclick="searchPasswords()">Поиск</button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button onclick="sortAsc()">A→Z</button>
+            <button onclick="sortDesc()" class="secondary">Z→A</button>
+        </div>
+
+        <h3>Добавить пароль</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <input id="serviceName" placeholder="Сервис" style="flex:1;">
+            <input id="website" placeholder="Сайт" style="flex:1;">
+            <input id="username" placeholder="Логин" style="flex:1;">
+            <input id="password" placeholder="Пароль" style="flex:1;">
+            <button onclick="addPass()">Добавить</button>
+        </div>
+
+        <h3 style="margin-top:20px;">Список</h3>
+        <button onclick="loadPasswords()">Обновить</button>
+
+        <div id="passwordList" style="margin-top:20px;"></div>
+    </div>
 </div>
 
-<div id="editPanel" class="card hidden">
-    <h3>Редактировать пароль</h3>
-    <input id="editServiceName" placeholder="Сервис">
-    <input id="editWebsite" placeholder="Сайт">
-    <input id="editUsername" placeholder="Логин">
-    <input id="editPassword" placeholder="Пароль">
-    <button onclick="updatePassword()">Сохранить</button>
-    <button onclick="cancelEdit()" style="background:#9e9e9e">Отмена</button>
+
+<!-- MODAL: edit password -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3>Редактировать</h3>
+        <input id="editServiceName" placeholder="Сервис"><br><br>
+        <input id="editWebsite" placeholder="Сайт"><br><br>
+        <input id="editUsername" placeholder="Логин"><br><br>
+        <input id="editPassword" placeholder="Пароль"><br><br>
+
+        <button onclick="updatePassword()">Сохранить</button>
+        <button onclick="closeEditModal()" class="secondary">Отмена</button>
+    </div>
 </div>
 
-<div id="editUserPanel" class="card hidden">
-    <h3>Редактировать профиль</h3>
-    <input id="editUserName" placeholder="Имя">
-    <input id="editUserUsername" placeholder="Логин">
-    <button onclick="updateUserInfo()">Сохранить</button>
-    <button onclick="cancelUserEdit()" style="background:#9e9e9e">Отмена</button>
+<!-- MODAL: edit user -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <h3>Редактировать профиль</h3>
+        <input id="editUserName" placeholder="Имя"><br><br>
+        <input id="editUserUsername" placeholder="Логин"><br><br>
+
+        <button onclick="saveUserEdit()">Сохранить</button>
+        <button onclick="closeUserModal()" class="secondary">Отмена</button>
+    </div>
 </div>
 
 <script>
     const API = "http://localhost:8080/api";
-
-    // Элементы
-    const menuName = document.getElementById("menuName"),
-          menuUsername = document.getElementById("menuUsername"),
-          userIconEl = document.getElementById("userIcon"),
-          userMenu = document.getElementById("userMenu"),
-          editUserPanel = document.getElementById("editUserPanel"),
-          editUserName = document.getElementById("editUserName"),
-          editUserUsername = document.getElementById("editUserUsername"),
-          loginBlock = document.getElementById("loginBlock"),
-          registerBlock = document.getElementById("registerBlock"),
-          userPanel = document.getElementById("userPanel"),
-          loginUsername = document.getElementById("loginUsername"),
-          loginPassword = document.getElementById("loginPassword"),
-          regUsername = document.getElementById("regUsername"),
-          regName = document.getElementById("regName"),
-          regPassword = document.getElementById("regPassword"),
-          passwordList = document.getElementById("passwordList"),
-          editPanel = document.getElementById("editPanel"),
-          editServiceName = document.getElementById("editServiceName"),
-          editWebsite = document.getElementById("editWebsite"),
-          editUsername = document.getElementById("editUsername"),
-          editPassword = document.getElementById("editPassword"),
-          searchInput = document.getElementById("searchInput");
-
     let editingId = null;
+    let CURRENT_USER = null;
 
-    // ----------------------
-    // UI функции
-    // ----------------------
-    function showLoginScreen() {
-        loginBlock.classList.remove("hidden");
-        registerBlock.classList.remove("hidden");
-        userPanel.classList.add("hidden");
-        editUserPanel.classList.add("hidden");
-        userIconEl.classList.add("hidden");
-        userMenu.style.display = "none";
-    }
-
-    function showUserPanel() {
-        loginBlock.classList.add("hidden");
-        registerBlock.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-        editUserPanel.classList.add("hidden");
-        userIconEl.classList.remove("hidden");
-    }
-
-    function toggleMenu() {
-        userMenu.style.display = userMenu.style.display === "block" ? "none" : "block";
-    }
-    userIconEl.addEventListener("click", toggleMenu);
-
-    function openEditUser() {
-        editUserPanel.classList.remove("hidden");
-        userPanel.classList.add("hidden");
-        userMenu.style.display = "none";
-        editUserName.value = menuName.textContent;
-        editUserUsername.value = menuUsername.textContent;
-    }
-
-    function cancelUserEdit() {
-        editUserPanel.classList.add("hidden");
-        userPanel.classList.remove("hidden");
-    }
-
-    // ----------------------
-    // Auth / User
-    // ----------------------
+    /* ================= AUTH ================= */
     async function login() {
-        try {
-            const res = await fetch(`${API}/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: loginUsername.value, password: loginPassword.value })
-            });
-            if (!res.ok) { alert("Неверный логин или пароль"); return; }
-            const data = await res.json();
-            localStorage.setItem("token", data.token); // сохраняем токен
-            await loadUserInfo();
-            showUserPanel();
-            loadPasswords();
-        } catch (e) {
-            console.error(e);
-            alert("Ошибка входа");
-        }
+        const res = await fetch(`${API}/auth/login`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                username: loginUsername.value,
+                password: loginPassword.value
+            })
+        });
+
+        if (!res.ok) return alert("Ошибка");
+
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
+
+        authScreen.classList.add("hidden");
+        app.classList.remove("hidden");
+
+        loadUserInfo();
+        loadPasswords();
     }
 
     async function register() {
-        try {
-            const res = await fetch(`${API}/auth/register`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: regUsername.value, name: regName.value, password: regPassword.value })
-            });
-            if (res.ok) {
-                alert("Регистрация завершена");
-                await login();
-            } else alert("Ошибка регистрации");
-        } catch (e) {
-            console.error(e);
-            alert("Ошибка регистрации");
-        }
+        const res = await fetch(`${API}/auth/register`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                username: regUsername.value,
+                name: regName.value,
+                password: regPassword.value
+            })
+        });
+
+        if (!res.ok) return alert("Ошибка регистрации");
+
+        alert("Регистрация успешна!");
     }
 
+
+    /* ================= USER ================= */
     async function loadUserInfo() {
         const token = localStorage.getItem("token");
-        if (!token) return;
-        try {
-            const res = await fetch(`${API}/user/info`, { headers: { "Authorization": "Bearer " + token } });
-            if (!res.ok) return;
-            const data = await res.json();
-            menuName.textContent = data.name;
-            menuUsername.textContent = data.username;
-            userIconEl.textContent = data.avatar || (data.name ? data.name.charAt(0).toUpperCase() : "U");
-        } catch (e) {
-            console.error(e);
-        }
+
+        const res = await fetch(`${API}/user/info`, {
+            headers: {Authorization: "Bearer " + token}
+        });
+
+        CURRENT_USER = await res.json();
+
+        userNameTitle.textContent = CURRENT_USER.name;
+        avatar.textContent = CURRENT_USER.name[0].toUpperCase();
     }
 
-    async function updateUserInfo() {
+    function openUserEdit() {
+        editUserName.value = CURRENT_USER.name;
+        editUserUsername.value = CURRENT_USER.username;
+        userModal.style.display = "flex";
+    }
+
+    function closeUserModal() {
+        userModal.style.display = "none";
+    }
+
+    async function saveUserEdit() {
         const token = localStorage.getItem("token");
-        if (!token) return alert("Нет токена!");
-        if (editUserName.value.length < 2 || editUserUsername.value.length < 5) return alert("Имя минимум 2 символа, логин минимум 5 символов");
-        try {
-            const res = await fetch(`${API}/user/update`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-                body: JSON.stringify({
-                    name: editUserName.value,
-                    username: editUserUsername.value,
-                    avatar: editUserName.value.charAt(0).toUpperCase()
-                })
-            });
-            if (!res.ok) { const err = await res.text(); alert("Ошибка обновления: " + err); return; }
-            const data = await res.json();
-            menuName.textContent = data.name;
-            menuUsername.textContent = data.username;
-            userIconEl.textContent = data.avatar;
-            editUserPanel.classList.add("hidden");
-            userPanel.classList.remove("hidden");
-            alert("Профиль обновлён!");
-        } catch (e) {
-            console.error(e);
-            alert("Ошибка обновления профиля");
-        }
+
+        await fetch(`${API}/user/update`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token
+            },
+            body: JSON.stringify({
+                name: editUserName.value,
+                username: editUserUsername.value
+            })
+        });
+
+        closeUserModal();
+        loadUserInfo();
     }
 
     function logout() {
         localStorage.removeItem("token");
-        showLoginScreen();
+        location.reload();
     }
 
-    // ----------------------
-    // Passwords
-    // ----------------------
-    async function loadPasswords() {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-        try {
-            const res = await fetch(`${API}/pass/all-pass`, { headers: { "Authorization": "Bearer " + token } });
-            if (!res.ok) return;
-            const list = await res.json();
-            renderPasswordList(list);
-        } catch (e) {
-            console.error(e);
-        }
-    }
 
-    function renderPasswordList(list) {
+    /* ================= PASSWORDS ================= */
+    function render(list) {
         passwordList.innerHTML = "";
-        if (list.length === 0) {
-            passwordList.innerHTML = "<p>Пароли не найдены</p>";
-            return;
-        }
+
         list.forEach(p => {
-            const el = document.createElement("div");
-            el.className = "item";
-            el.innerHTML = `
+            const box = document.createElement("div");
+            box.className = "item";
+
+            const link = p.website && p.website.startsWith("http")
+                ? `<a href="${p.website}" target="_blank">${p.website}</a>`
+                : p.website;
+
+            box.innerHTML = `
                 <b>${p.serviceName}</b><br>
-                ${p.website}<br>
-                Логин: ${p.username}<br>
-                Пароль: ${p.password}<br>
+                ${link || ""}<br>
+                <small>Логин: ${p.username}</small><br>
+                <small>Пароль: ${p.password}</small>
             `;
+
+            const btns = document.createElement("div");
+            btns.className = "item-buttons";
+
             const editBtn = document.createElement("button");
-            editBtn.className = "edit-btn";
-            editBtn.innerText = "Изменить";
-            editBtn.onclick = () => startEdit(p);
-            el.appendChild(editBtn);
+            editBtn.textContent = "Изменить";
+            editBtn.onclick = () => openEdit(p);
 
             const delBtn = document.createElement("button");
-            delBtn.className = "delete-btn";
-            delBtn.innerText = "Удалить";
+            delBtn.textContent = "Удалить";
+            delBtn.className = "danger";
             delBtn.onclick = () => deletePassword(p.id);
-            el.appendChild(delBtn);
 
-            passwordList.appendChild(el);
+            btns.appendChild(editBtn);
+            btns.appendChild(delBtn);
+
+            box.appendChild(btns);
+            passwordList.appendChild(box);
         });
+    }
+
+    async function loadPasswords() {
+        const res = await fetch(`${API}/pass/all-pass`, {
+            headers: {Authorization: "Bearer " + localStorage.getItem("token")}
+        });
+
+        render(await res.json());
     }
 
     async function addPass() {
-        const token = localStorage.getItem("token");
-        if (!token) return;
         await fetch(`${API}/pass/add-pass`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + localStorage.getItem("token")
+            },
             body: JSON.stringify({
-                serviceName: document.getElementById("serviceName").value,
-                website: document.getElementById("website").value,
-                username: document.getElementById("username").value,
-                password: document.getElementById("password").value
+                serviceName: serviceName.value,
+                website: website.value,
+                username: username.value,
+                password: password.value
             })
         });
+
         loadPasswords();
     }
 
-    function startEdit(p) {
+    function openEdit(p) {
         editingId = p.id;
         editServiceName.value = p.serviceName;
         editWebsite.value = p.website;
         editUsername.value = p.username;
         editPassword.value = p.password;
-        editPanel.classList.remove("hidden");
-        userPanel.classList.add("hidden");
+
+        editModal.style.display = "flex";
     }
 
-    function cancelEdit() {
-        editPanel.classList.add("hidden");
-        userPanel.classList.remove("hidden");
+    function closeEditModal() {
+        editModal.style.display = "none";
     }
 
     async function updatePassword() {
-        const token = localStorage.getItem("token");
-        if (!token) return;
         await fetch(`${API}/pass/update-pass/${editingId}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + localStorage.getItem("token")
+            },
             body: JSON.stringify({
                 serviceName: editServiceName.value,
                 website: editWebsite.value,
@@ -326,60 +411,44 @@
                 password: editPassword.value
             })
         });
-        cancelEdit();
+
+        closeEditModal();
         loadPasswords();
     }
 
     async function deletePassword(id) {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-        await fetch(`${API}/pass/delete-pass/${id}`, { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
+        await fetch(`${API}/pass/delete-pass/${id}`, {
+            method: "DELETE",
+            headers: {Authorization: "Bearer " + localStorage.getItem("token")}
+        });
+
         loadPasswords();
     }
 
-    // ----------------------
-    // Search
-    // ----------------------
     async function searchPasswords() {
-        const token = localStorage.getItem("token");
-        if (!token) return alert("Вы не авторизованы");
+        const q = searchInput.value.trim();
+        if (!q) return;
 
-        const query = searchInput.value.trim();
-        if (query.length === 0) {
-            alert("Введите название сервиса!");
-            return;
-        }
+        const res = await fetch(`${API}/pass/search?serviceName=` + q, {
+            headers: {Authorization: "Bearer " + localStorage.getItem("token")}
+        });
 
-        try {
-            const res = await fetch(`${API}/pass/search?serviceName=` + encodeURIComponent(query), {
-                headers: { "Authorization": "Bearer " + token }
-            });
-
-            if (!res.ok) { alert("Ошибка поиска"); return; }
-
-            const list = await res.json();
-            renderPasswordList(list);
-        } catch (e) {
-            console.error(e);
-            alert("Ошибка поиска");
-        }
+        render(await res.json());
     }
 
-    // ----------------------
-    // INIT
-    // ----------------------
-    window.addEventListener("DOMContentLoaded", async () => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            // Пользователь уже залогинен
-            showUserPanel();
-            await loadUserInfo();
-            await loadPasswords();
-        } else {
-            // Не залогинен
-            showLoginScreen();
-        }
-    });
+    async function sortAsc() {
+        const res = await fetch(`${API}/pass/sorted-serviceName-asc`, {
+            headers: {Authorization: "Bearer " + localStorage.getItem("token")}
+        });
+        render(await res.json());
+    }
+
+    async function sortDesc() {
+        const res = await fetch(`${API}/pass/sorted-serviceName-desc`, {
+            headers: {Authorization: "Bearer " + localStorage.getItem("token")}
+        });
+        render(await res.json());
+    }
 </script>
 
 </body>

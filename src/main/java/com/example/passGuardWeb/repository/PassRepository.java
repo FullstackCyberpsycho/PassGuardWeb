@@ -19,4 +19,9 @@ public interface PassRepository extends JpaRepository<Password, Long> {
     Optional<Password> findByIdAndUserId(Long passwordId, Long userId);
 
     List<PasswordDto> findByUserIdAndServiceNameStartingWithIgnoreCase(Long userId, String serviceName);
+
+    //List<PasswordDto> findByUserIdAndOrderByServiceNameAsc(Long userId);
+    List<PasswordDto> findByUserIdOrderByServiceNameAsc(Long userId);
+
+    List<PasswordDto> findByUserIdOrderByServiceNameDesc(Long userId);
 }

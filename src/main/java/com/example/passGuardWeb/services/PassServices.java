@@ -87,7 +87,29 @@ public class PassServices {
                         p.getServiceName(),
                         p.getWebsite(),
                         p.getUsername(),
-                        p.getPassword()
+                        aes.decrypt(p.getPassword())
+                )).toList();
+    }
+
+    public List<PasswordDto> getAscSortedPassword(Long userId) {
+        return passRepository.findByUserIdOrderByServiceNameAsc(userId)
+                .stream().map(p -> new PasswordDto(
+                        p.getId(),
+                        p.getServiceName(),
+                        p.getWebsite(),
+                        p.getUsername(),
+                        aes.decrypt(p.getPassword())
+                )).toList();
+    }
+
+    public List<PasswordDto> getDescSortedPassword(Long userId) {
+        return passRepository.findByUserIdOrderByServiceNameDesc(userId)
+                .stream().map(p -> new PasswordDto(
+                        p.getId(),
+                        p.getServiceName(),
+                        p.getWebsite(),
+                        p.getUsername(),
+                        aes.decrypt(p.getPassword())
                 )).toList();
     }
 }

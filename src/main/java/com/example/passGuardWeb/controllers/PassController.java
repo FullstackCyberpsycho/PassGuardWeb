@@ -84,4 +84,20 @@ public class PassController {
 
         return ResponseEntity.status(HttpStatus.OK).body(passServices.getSearchPassword(userId, serviceName));
     }
+
+    @GetMapping("/sorted-serviceName-asc")
+    public ResponseEntity<List<PasswordDto>> getAscSortedPassword(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        long userId = jwtService.extractUserId(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(passServices.getAscSortedPassword(userId));
+    }
+
+    @GetMapping("/sorted-serviceName-desc")
+    public ResponseEntity<List<PasswordDto>> getDescSortedPassword(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        long userId = jwtService.extractUserId(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body(passServices.getDescSortedPassword(userId));
+    }
 }
